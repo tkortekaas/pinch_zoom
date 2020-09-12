@@ -1,7 +1,6 @@
 name: pinch_zoom
-description: Responsive pinch zooming as in Instagram based
-version: 0.0.1
-author: Teun Kortekaas
+description: A widget based on Flutter's new Interactive Viewer that makes picture pinch zoom, and return to its initial size and position when released.
+version: 0.0.1+2
 homepage: https://www.jelter.net
 
 environment:
@@ -15,5 +14,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+repository: https://github.com/tkortekaas/pinch_zoom
 
 flutter:
