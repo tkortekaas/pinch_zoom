@@ -6,6 +6,7 @@ class PinchZoom extends StatefulWidget {
   final double maxScale;
   final Duration resetDuration;
   final bool zoomEnabled;
+  final Function onZoomStart, onZoomEnd;
 
   /// Create an PinchZoom.
   ///
@@ -21,6 +22,10 @@ class PinchZoom extends StatefulWidget {
   /// * [zoomedBackgroundColor] is background color during the animation.
   ///
   /// * [zoomEnabled] can be used to enable/disable zooming.
+  ///
+  /// * [onZoomStart] called when the widget goes to its zoomed state.
+  ///
+  /// * [onZoomEnd] called when the widget is back to its idle state.
 
   PinchZoom({
     @required this.image,
@@ -30,6 +35,8 @@ class PinchZoom extends StatefulWidget {
     // use cases.
     this.maxScale = 3.0,
     this.zoomEnabled = true,
+    this.onZoomStart,
+    this.onZoomEnd
   });
 
   @override
@@ -39,13 +46,13 @@ class PinchZoom extends StatefulWidget {
 class _PinchZoomState extends State<PinchZoom>
     with SingleTickerProviderStateMixin {
   final TransformationController _transformationController =
-      TransformationController();
+  TransformationController();
 
   Animation<Matrix4> _animationReset;
   AnimationController _controllerReset;
   OverlayEntry _overlayEntry;
   bool zooming = false,
-      // Is true when the zoomed in widget is still showing
+  // Is true when the zoomed in widget is still showing
       _opened = false;
 
   @override
@@ -171,6 +178,7 @@ class _PinchZoomState extends State<PinchZoom>
     _overlayEntry = _buildOverlayEntry(constraints);
     Overlay.of(context).insert(_overlayEntry);
     _opened = true;
+    widget.onZoomStart();
   }
 
   // Remove the zoomed in widget
@@ -178,6 +186,7 @@ class _PinchZoomState extends State<PinchZoom>
     if (_opened) {
       _overlayEntry.remove();
       _opened = false;
+      widget.onZoomEnd();
     }
   }
 }
