@@ -5,6 +5,7 @@ class PinchZoom extends StatefulWidget {
   final Color zoomedBackgroundColor;
   final double maxScale;
   final Duration resetDuration;
+  final bool zoomEnabled;
 
   /// Create an PinchZoom.
   ///
@@ -18,6 +19,8 @@ class PinchZoom extends StatefulWidget {
   /// * [resetDuration] is the length of time this animation should last.
   ///
   /// * [zoomedBackgroundColor] is background color during the animation.
+  ///
+  /// * [zoomEnabled] can be used to enable/disable zooming.
 
   PinchZoom({
     @required this.image,
@@ -26,6 +29,7 @@ class PinchZoom extends StatefulWidget {
     // This default maxScale value is eyeballed as reasonable limit for common
     // use cases.
     this.maxScale = 3.0,
+    this.zoomEnabled = true,
   });
 
   @override
@@ -58,9 +62,9 @@ class _PinchZoomState extends State<PinchZoom>
           width: constraints.maxWidth,
           child: InteractiveViewer(
             child: widget.image,
-            scaleEnabled: true,
+            scaleEnabled: widget.zoomEnabled,
             panEnabled: false,
-            onInteractionStart: _onInteractionStart,
+            onInteractionStart: widget.zoomEnabled ? _onInteractionStart : null,
             onInteractionEnd: _onInteractionEnd,
             transformationController: _transformationController,
           ),
@@ -141,36 +145,22 @@ class _PinchZoomState extends State<PinchZoom>
     final offset = renderBox.localToGlobal(Offset.zero);
     return OverlayEntry(
       builder: (context) {
-        return Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(color: widget.zoomedBackgroundColor),
+        return ColoredBox(
+          color: widget.zoomedBackgroundColor,
+          child: Container(
+            margin: EdgeInsets.only(left: offset.dx, top: offset.dy),
+            height: constraints.maxHeight,
+            width: constraints.maxWidth,
+            child: InteractiveViewer(
+              child: widget.image,
+              scaleEnabled: true,
+              panEnabled: false,
+              maxScale: widget.maxScale,
+              onInteractionStart: _onInteractionStart,
+              onInteractionEnd: _onInteractionEnd,
+              transformationController: _transformationController,
             ),
-            Positioned(
-              left: offset.dx,
-              top: offset.dy,
-              child: Material(
-                child: Container(
-                  height: constraints.maxHeight,
-                  width: constraints.maxWidth,
-                  color: widget.zoomedBackgroundColor,
-                  child: InteractiveViewer(
-                    child: widget.image,
-                    scaleEnabled: true,
-                    panEnabled: false,
-                    maxScale: widget.maxScale,
-                    onInteractionStart: _onInteractionStart,
-                    onInteractionEnd: _onInteractionEnd,
-                    transformationController: _transformationController,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         );
       },
     );
