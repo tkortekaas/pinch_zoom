@@ -27,17 +27,16 @@ class PinchZoom extends StatefulWidget {
   ///
   /// * [onZoomEnd] called when the widget is back to its idle state.
 
-  PinchZoom({
-    @required this.image,
-    this.zoomedBackgroundColor = Colors.black,
-    this.resetDuration = const Duration(milliseconds: 100),
-    // This default maxScale value is eyeballed as reasonable limit for common
-    // use cases.
-    this.maxScale = 3.0,
-    this.zoomEnabled = true,
-    this.onZoomStart,
-    this.onZoomEnd
-  });
+  PinchZoom(
+      {@required this.image,
+      this.zoomedBackgroundColor = Colors.black,
+      this.resetDuration = const Duration(milliseconds: 100),
+      // This default maxScale value is eyeballed as reasonable limit for common
+      // use cases.
+      this.maxScale = 3.0,
+      this.zoomEnabled = true,
+      this.onZoomStart,
+      this.onZoomEnd});
 
   @override
   _PinchZoomState createState() => _PinchZoomState();
@@ -46,13 +45,13 @@ class PinchZoom extends StatefulWidget {
 class _PinchZoomState extends State<PinchZoom>
     with SingleTickerProviderStateMixin {
   final TransformationController _transformationController =
-  TransformationController();
+      TransformationController();
 
   Animation<Matrix4> _animationReset;
   AnimationController _controllerReset;
   OverlayEntry _overlayEntry;
   bool zooming = false,
-  // Is true when the zoomed in widget is still showing
+      // Is true when the zoomed in widget is still showing
       _opened = false;
 
   @override
@@ -178,7 +177,7 @@ class _PinchZoomState extends State<PinchZoom>
     _overlayEntry = _buildOverlayEntry(constraints);
     Overlay.of(context).insert(_overlayEntry);
     _opened = true;
-    widget.onZoomStart();
+    if (widget.onZoomStart != null) widget.onZoomStart();
   }
 
   // Remove the zoomed in widget
@@ -186,7 +185,7 @@ class _PinchZoomState extends State<PinchZoom>
     if (_opened) {
       _overlayEntry.remove();
       _opened = false;
-      widget.onZoomEnd();
+      if (widget.onZoomEnd != null) widget.onZoomEnd();
     }
   }
 }
