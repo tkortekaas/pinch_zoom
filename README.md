@@ -18,7 +18,7 @@ This pinch zooming is used in [my app Palbum](https://palbum.app):
 Add this to your `pubspec.yaml` dependencies:
 
 ```
-pinch_zoom: ^0.0.3
+pinch_zoom: ^0.0.4
 ```
 
 ## How to use

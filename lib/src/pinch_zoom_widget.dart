@@ -83,8 +83,8 @@ class _PinchZoomState extends State<PinchZoom>
   void initState() {
     super.initState();
     _controllerReset = AnimationController(
-      vsync: this,
       duration: widget.resetDuration,
+      vsync: this,
     );
   }
 
@@ -151,22 +151,29 @@ class _PinchZoomState extends State<PinchZoom>
     final offset = renderBox.localToGlobal(Offset.zero);
     return OverlayEntry(
       builder: (context) {
-        return ColoredBox(
-          color: widget.zoomedBackgroundColor,
-          child: Container(
-            margin: EdgeInsets.only(left: offset.dx, top: offset.dy),
-            height: constraints.maxHeight,
-            width: constraints.maxWidth,
-            child: InteractiveViewer(
-              child: widget.image,
-              scaleEnabled: true,
-              panEnabled: false,
-              maxScale: widget.maxScale,
-              onInteractionStart: _onInteractionStart,
-              onInteractionEnd: _onInteractionEnd,
-              transformationController: _transformationController,
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: ColoredBox(color: widget.zoomedBackgroundColor),
             ),
-          ),
+            Positioned(
+              left: offset.dx,
+              top: offset.dy,
+              child: Container(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+                child: InteractiveViewer(
+                  child: widget.image,
+                  scaleEnabled: true,
+                  panEnabled: false,
+                  maxScale: widget.maxScale,
+                  onInteractionStart: _onInteractionStart,
+                  onInteractionEnd: _onInteractionEnd,
+                  transformationController: _transformationController,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

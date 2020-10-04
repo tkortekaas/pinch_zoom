@@ -1,3 +1,7 @@
+## [0.0.4] - 04/10/2020
+
+Zooming improvements
+
 ## [0.0.3] - 22/09/2020
 
 onZoomStart and onZoomEnd bug fix
