@@ -6,7 +6,7 @@ class PinchZoom extends StatefulWidget {
   final double maxScale;
   final Duration resetDuration;
   final bool zoomEnabled;
-  final Function onZoomStart, onZoomEnd;
+  final Function? onZoomStart, onZoomEnd;
 
   /// Create an PinchZoom.
   ///
@@ -28,7 +28,7 @@ class PinchZoom extends StatefulWidget {
   /// * [onZoomEnd] called when the widget is back to its idle state.
 
   PinchZoom(
-      {@required this.image,
+      {required this.image,
       this.zoomedBackgroundColor = Colors.black,
       this.resetDuration = const Duration(milliseconds: 100),
       // This default maxScale value is eyeballed as reasonable limit for common
@@ -47,9 +47,9 @@ class _PinchZoomState extends State<PinchZoom>
   final TransformationController _transformationController =
       TransformationController();
 
-  Animation<Matrix4> _animationReset;
-  AnimationController _controllerReset;
-  OverlayEntry _overlayEntry;
+  late Animation<Matrix4> _animationReset;
+  late AnimationController _controllerReset;
+  OverlayEntry? _overlayEntry;
   bool zooming = false,
       // Is true when the zoomed in widget is still showing
       _opened = false;
@@ -95,12 +95,12 @@ class _PinchZoomState extends State<PinchZoom>
     super.dispose();
   }
 
-  // Go back to static state after resetting has ended
+  /// Go back to static state after resetting has ended
   void _onAnimateReset() {
     _transformationController.value = _animationReset.value;
     if (!_controllerReset.isAnimating) {
-      _animationReset?.removeListener(_onAnimateReset);
-      _animationReset = null;
+      _animationReset.removeListener(_onAnimateReset);
+      _animationReset = Matrix4Tween().animate(_controllerReset);
       _controllerReset.reset();
       setState(() {
         zooming = false;
@@ -108,7 +108,7 @@ class _PinchZoomState extends State<PinchZoom>
     }
   }
 
-  // Start resetting the animation
+  /// Start resetting the animation
   void _animateResetInitialize() {
     _controllerReset.reset();
     _animationReset = Matrix4Tween(
@@ -119,15 +119,15 @@ class _PinchZoomState extends State<PinchZoom>
     _controllerReset.forward();
   }
 
-  // Stop the reset animation
+  /// Stop the reset animation
   void _animateResetStop() {
     _controllerReset.stop();
-    _animationReset?.removeListener(_onAnimateReset);
-    _animationReset = null;
+    _animationReset.removeListener(_onAnimateReset);
+    _animationReset = Matrix4Tween().animate(_controllerReset);
     _controllerReset.reset();
   }
 
-  // Start zooming in
+  /// Start zooming in
   void _onInteractionStart(ScaleStartDetails details) {
     // If the user tries to cause a transformation while the reset animation is
     // running, cancel the reset animation.
@@ -140,15 +140,17 @@ class _PinchZoomState extends State<PinchZoom>
     }
   }
 
-  // Start reset animation after zooming stopped
+  /// Start reset animation after zooming stopped
   void _onInteractionEnd(ScaleEndDetails details) {
     _animateResetInitialize();
   }
 
-  // Create the Overlay for the zoomed in widget
-  OverlayEntry _buildOverlayEntry(BoxConstraints constraints) {
-    RenderBox renderBox = context.findRenderObject();
-    final offset = renderBox.localToGlobal(Offset.zero);
+  /// Create the Overlay for the zoomed in widget
+  OverlayEntry? _buildOverlayEntry(BoxConstraints constraints) {
+    RenderObject? renderObject = context.findRenderObject();
+
+    if (renderObject == null) return null;
+    final offset = (renderObject as RenderBox).localToGlobal(Offset.zero);
     return OverlayEntry(
       builder: (context) {
         return Stack(
@@ -179,20 +181,26 @@ class _PinchZoomState extends State<PinchZoom>
     );
   }
 
-  // Show the zoomed in widget
+  /// Show the zoomed in widget
   void _show(BoxConstraints constraints) async {
-    _overlayEntry = _buildOverlayEntry(constraints);
-    Overlay.of(context).insert(_overlayEntry);
+    OverlayEntry? overlayEntry = _buildOverlayEntry(constraints);
+    _overlayEntry = overlayEntry;
+    OverlayState? _overlayState = Overlay.of(context);
+    if (overlayEntry == null || _overlayState == null) return;
+    _overlayState.insert(overlayEntry);
     _opened = true;
-    if (widget.onZoomStart != null) widget.onZoomStart();
+    Function onZoomStart = widget.onZoomStart ?? () {};
+    onZoomStart();
   }
 
-  // Remove the zoomed in widget
+  /// Remove the zoomed in widget
   void _hide() {
-    if (_opened) {
-      _overlayEntry.remove();
+    OverlayEntry? overlayEntry = _overlayEntry;
+    if (_opened && overlayEntry != null) {
+      overlayEntry.remove();
       _opened = false;
-      if (widget.onZoomEnd != null) widget.onZoomEnd();
+      Function onZoomEnd = widget.onZoomEnd ?? () {};
+      onZoomEnd();
     }
   }
 }

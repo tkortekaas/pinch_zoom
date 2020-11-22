@@ -1,10 +1,10 @@
 name: pinch_zoom
 description: A widget based on Flutter's new Interactive Viewer that makes picture pinch zoom, and return to its initial size and position when released.
-version: 0.0.4
+version: 0.1.0-nullsafety.0
 homepage: https://github.com/tkortekaas/pinch_zoom
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0-0 <3.0.0"
   flutter: ">=1.2.0 <2.0.0"
 
 dependencies:

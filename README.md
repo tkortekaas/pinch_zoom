@@ -18,7 +18,7 @@ This pinch zooming is used in [my app Palbum](https://palbum.app):
 Add this to your `pubspec.yaml` dependencies:
 
 ```
-pinch_zoom: ^0.0.4
+pinch_zoom: ^0.1.0-nullsafety.0
 ```
 
 ## How to use
@@ -27,9 +27,11 @@ Add the widget to your app like this (It automatically takes the size of the ima
 
 ```dart
 PinchZoom(
-  image: Image.network('http://placerabbit.com/200/333'),
-  zoomedBackgroundColor: Colors.black.withOpacity(0.5),
-  resetDuration: const Duration(milliseconds: 100),
-  maxScale: 2.5,
+    image: Image.network('https://placekitten.com/640/360'),
+    zoomedBackgroundColor: Colors.black.withOpacity(0.5),
+    resetDuration: const Duration(milliseconds: 100),
+    maxScale: 2.5,
+    onZoomStart: (){print('Start zooming');},
+    onZoomEnd: (){print('Stop zooming');},
 ),
 ```

@@ -1,3 +1,7 @@
+## [0.1.0-nullsafety.0] - 22/11/2020
+
+Made the package null safe, added example and added documentation
+
 ## [0.0.4] - 04/10/2020
 
 Zooming improvements
