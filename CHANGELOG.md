@@ -1,4 +1,4 @@
-## [0.1.0-nullsafety.0] - 22/11/2020
+## [0.1.0] - 08/03/2021
 
 Made the package null safe, added example and added documentation
 
