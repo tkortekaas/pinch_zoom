@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PinchZoom extends StatefulWidget {
-  final Widget image;
-  final Color zoomedBackgroundColor;
+  final Widget child;
   final double maxScale;
   final Duration resetDuration;
   final bool zoomEnabled;
@@ -10,7 +9,7 @@ class PinchZoom extends StatefulWidget {
 
   /// Create an PinchZoom.
   ///
-  /// * [image] is the widget used for zooming.
+  /// * [child] is the widget used for zooming.
   /// This parameter must not be null.
   ///
   /// * [maxScale] is the maximum allowed scale.
@@ -19,8 +18,6 @@ class PinchZoom extends StatefulWidget {
   ///
   /// * [resetDuration] is the length of time this animation should last.
   ///
-  /// * [zoomedBackgroundColor] is background color during the animation.
-  ///
   /// * [zoomEnabled] can be used to enable/disable zooming.
   ///
   /// * [onZoomStart] called when the widget goes to its zoomed state.
@@ -28,8 +25,7 @@ class PinchZoom extends StatefulWidget {
   /// * [onZoomEnd] called when the widget is back to its idle state.
 
   PinchZoom(
-      {required this.image,
-      this.zoomedBackgroundColor = Colors.black,
+      {required this.child,
       this.resetDuration = const Duration(milliseconds: 100),
       // This default maxScale value is eyeballed as reasonable limit for common
       // use cases.
@@ -49,33 +45,31 @@ class _PinchZoomState extends State<PinchZoom>
 
   late Animation<Matrix4> _animationReset;
   late AnimationController _controllerReset;
-  OverlayEntry? _overlayEntry;
-  bool zooming = false,
-      // Is true when the zoomed in widget is still showing
-      _opened = false;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        if (zooming && !_opened) {
-          Future.delayed(Duration.zero, () => _show(constraints));
-        } else if (!zooming && _opened) {
-          _hide();
-        }
-        return Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: InteractiveViewer(
-            child: widget.image,
-            scaleEnabled: widget.zoomEnabled,
-            panEnabled: false,
-            onInteractionStart: widget.zoomEnabled ? _onInteractionStart : null,
-            onInteractionEnd: _onInteractionEnd,
-            transformationController: _transformationController,
-          ),
-        );
-      },
+    return Container(
+      height: double.maxFinite,
+      width: double.maxFinite,
+      child: InteractiveViewer(
+        child: widget.child,
+        scaleEnabled: widget.zoomEnabled,
+        maxScale: widget.maxScale,
+        panEnabled: false,
+        onInteractionStart: widget.zoomEnabled
+            ? (_) {
+                if (_controllerReset.status == AnimationStatus.forward) {
+                  _animateResetStop();
+                } else {
+                  if (widget.onZoomStart != null) {
+                    widget.onZoomStart!();
+                  }
+                }
+              }
+            : null,
+        onInteractionEnd: (_) => _animateResetInitialize(),
+        transformationController: _transformationController,
+      ),
     );
   }
 
@@ -91,7 +85,6 @@ class _PinchZoomState extends State<PinchZoom>
   @override
   void dispose() {
     _controllerReset.dispose();
-    _hide();
     super.dispose();
   }
 
@@ -102,9 +95,9 @@ class _PinchZoomState extends State<PinchZoom>
       _animationReset.removeListener(_onAnimateReset);
       _animationReset = Matrix4Tween().animate(_controllerReset);
       _controllerReset.reset();
-      setState(() {
-        zooming = false;
-      });
+      if (widget.onZoomEnd != null) {
+        widget.onZoomEnd!();
+      }
     }
   }
 
@@ -125,82 +118,5 @@ class _PinchZoomState extends State<PinchZoom>
     _animationReset.removeListener(_onAnimateReset);
     _animationReset = Matrix4Tween().animate(_controllerReset);
     _controllerReset.reset();
-  }
-
-  /// Start zooming in
-  void _onInteractionStart(ScaleStartDetails details) {
-    // If the user tries to cause a transformation while the reset animation is
-    // running, cancel the reset animation.
-    if (_controllerReset.status == AnimationStatus.forward) {
-      _animateResetStop();
-    } else {
-      setState(() {
-        zooming = true;
-      });
-    }
-  }
-
-  /// Start reset animation after zooming stopped
-  void _onInteractionEnd(ScaleEndDetails details) {
-    _animateResetInitialize();
-  }
-
-  /// Create the Overlay for the zoomed in widget
-  OverlayEntry? _buildOverlayEntry(BoxConstraints constraints) {
-    RenderObject? renderObject = context.findRenderObject();
-
-    if (renderObject == null) return null;
-    final offset = (renderObject as RenderBox).localToGlobal(Offset.zero);
-    return OverlayEntry(
-      builder: (context) {
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: ColoredBox(color: widget.zoomedBackgroundColor),
-            ),
-            Positioned(
-              left: offset.dx,
-              top: offset.dy,
-              child: Container(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                child: InteractiveViewer(
-                  child: widget.image,
-                  scaleEnabled: true,
-                  panEnabled: false,
-                  maxScale: widget.maxScale,
-                  onInteractionStart: _onInteractionStart,
-                  onInteractionEnd: _onInteractionEnd,
-                  transformationController: _transformationController,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Show the zoomed in widget
-  void _show(BoxConstraints constraints) async {
-    OverlayEntry? overlayEntry = _buildOverlayEntry(constraints);
-    _overlayEntry = overlayEntry;
-    OverlayState? _overlayState = Overlay.of(context);
-    if (overlayEntry == null || _overlayState == null) return;
-    _overlayState.insert(overlayEntry);
-    _opened = true;
-    Function onZoomStart = widget.onZoomStart ?? () {};
-    onZoomStart();
-  }
-
-  /// Remove the zoomed in widget
-  void _hide() {
-    OverlayEntry? overlayEntry = _overlayEntry;
-    if (_opened && overlayEntry != null) {
-      overlayEntry.remove();
-      _opened = false;
-      Function onZoomEnd = widget.onZoomEnd ?? () {};
-      onZoomEnd();
-    }
   }
 }

@@ -1,3 +1,11 @@
+> Note: This release has breaking changes.
+## [1.0.0] - 16/07/2021
+
+Improvements to this package, removing redundant code and making more clear the package can also be used with video.
+
+**BREAKING** Changed image parameter to child, since the package works also on video
+**BREAKING** All backgrounds are now transparent
+
 ## [0.1.0] - 08/03/2021
 
 Made the package null safe, added example and added documentation

@@ -26,8 +26,7 @@ class ExamplePage extends StatelessWidget {
         title: Text('PinchZoom Page'),
       ),
       body: PinchZoom(
-        image: Image.network('https://placekitten.com/640/360'),
-        zoomedBackgroundColor: Colors.black.withOpacity(0.5),
+        child: Image.network('https://placekitten.com/640/360'),
         resetDuration: const Duration(milliseconds: 100),
         maxScale: 2.5,
         onZoomStart: (){print('Start zooming');},
