@@ -6,9 +6,7 @@ This package offers Instagram based pinch zooming that feels more responsive tha
 
 This package is based on the recent Interactive Viewer that Flutter introduced since version 1.20.
 
-The package is designed for zooming in on images, however it can also be used to zoom in on a video.
-
-This pinch zooming is used in [my app Palbum](https://palbum.app):
+The package is designed for zooming in on images; however, it can also be used to zoom in on a video.
 
 ![Example one](https://jelter.net/pinch_zoom_example_1.png)
 ![Example two](https://jelter.net/pinch_zoom_example_2.png)
