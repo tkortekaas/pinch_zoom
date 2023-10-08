@@ -25,12 +25,21 @@ class ExamplePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('PinchZoom Page'),
       ),
-      body: PinchZoom(
-        child: Image.network('https://placekitten.com/640/360'),
-        resetDuration: const Duration(milliseconds: 100),
-        maxScale: 2.5,
-        onZoomStart: (){print('Start zooming');},
-        onZoomEnd: (){print('Stop zooming');},
+      body: Column(
+        children: [
+          PinchZoom(
+            child: Image.network('https://placekitten.com/640/360'),
+            maxScale: 2.5,
+            onZoomStart: (){print('Start zooming cat');},
+            onZoomEnd: (){print('Stop zooming cat');},
+          ),
+          PinchZoom(
+            child: Image.network('https://placedog.net/640/360'),
+            maxScale: 2.5,
+            onZoomStart: (){print('Start zooming dog');},
+            onZoomEnd: (){print('Stop zooming dog');},
+          ),
+        ],
       ),
     );
   }

@@ -1,9 +1,28 @@
 > Note: This release has breaking changes.
+## [2.0.0] - 08/10/2023
+
+Pinch zoom is back with improvements! It is recommended to run the example project to see the changes.
+
+**BREAKING** Removed resetDuration parameter, as it caused unstable behaviour
+
+**BREAKING** The plugin now displays above all other widgets, providing an experience similar to the one of the
+Instagram app
+
+**Feature** Zoom stays stable when using 1 finger, still allowing to pan the image
+
+**Feature** Displays over all other widgets and over the app bar
+
+**FIX** Widget works better when used in Columns
+
+**FIX** Unstable behaviour where the zooming would not be reset
+
+> Note: This release has breaking changes.
 ## [1.0.0] - 16/07/2021
 
 Improvements to this package, removing redundant code and making more clear the package can also be used with video.
 
 **BREAKING** Changed image parameter to child, since the package works also on video
+
 **BREAKING** All backgrounds are now transparent
 
 ## [0.1.0] - 08/03/2021
@@ -17,7 +36,6 @@ Zooming improvements
 ## [0.0.3] - 22/09/2020
 
 onZoomStart and onZoomEnd bug fix
-
 
 ## [0.0.2] - 16/09/2020
 

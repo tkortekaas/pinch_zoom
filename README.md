@@ -1,10 +1,8 @@
 # pinch_zoom
 
-A widget based on Flutter's new Interactive Viewer that makes picture pinch zoom, and return to its initial size and position when released.
+A widget based on Flutter's Interactive Viewer that makes picture pinch zoom, and return to its initial size and position when released.
 
 This package offers Instagram based pinch zooming that feels more responsive than other similar packages.
-
-This package is based on the recent Interactive Viewer that Flutter introduced since version 1.20.
 
 The package is designed for zooming in on images; however, it can also be used to zoom in on a video.
 
@@ -16,7 +14,7 @@ The package is designed for zooming in on images; however, it can also be used t
 Add this to your `pubspec.yaml` dependencies:
 
 ```
-pinch_zoom: ^1.0.0
+pinch_zoom: ^2.0.0
 ```
 
 ## How to use
@@ -26,7 +24,6 @@ Add the widget to your app like this (It automatically takes the size of the ima
 ```dart
 PinchZoom(
     child: Image.network('https://placekitten.com/640/360'),
-    resetDuration: const Duration(milliseconds: 100),
     maxScale: 2.5,
     onZoomStart: (){print('Start zooming');},
     onZoomEnd: (){print('Stop zooming');},

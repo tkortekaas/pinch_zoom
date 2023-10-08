@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class PinchZoom extends StatefulWidget {
   final Widget child;
   final double maxScale;
-  final Duration resetDuration;
   final bool zoomEnabled;
   final Function? onZoomStart, onZoomEnd;
 
@@ -26,7 +27,6 @@ class PinchZoom extends StatefulWidget {
 
   PinchZoom(
       {required this.child,
-      this.resetDuration = const Duration(milliseconds: 100),
       // This default maxScale value is eyeballed as reasonable limit for common
       // use cases.
       this.maxScale = 3.0,
@@ -42,81 +42,102 @@ class _PinchZoomState extends State<PinchZoom>
     with SingleTickerProviderStateMixin {
   final TransformationController _transformationController =
       TransformationController();
-
-  late Animation<Matrix4> _animationReset;
-  late AnimationController _controllerReset;
+  OverlayEntry? _overlayEntry;
+  final widgetKey = GlobalKey();
+  Timer? _endScrollTimer;
+  bool? endHandled;
+  final Matrix4 identity = Matrix4.identity();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: double.maxFinite,
-      width: double.maxFinite,
-      child: InteractiveViewer(
-        child: widget.child,
-        scaleEnabled: widget.zoomEnabled,
-        maxScale: widget.maxScale,
-        panEnabled: false,
-        onInteractionStart: widget.zoomEnabled
-            ? (_) {
-                if (_controllerReset.status == AnimationStatus.forward) {
-                  _animateResetStop();
-                } else {
-                  if (widget.onZoomStart != null) {
-                    widget.onZoomStart!();
-                  }
-                }
-              }
-            : null,
-        onInteractionEnd: (_) => _animateResetInitialize(),
-        transformationController: _transformationController,
-      ),
+    return InteractiveViewer(
+      key: widgetKey,
+      child: widget.child,
+      scaleEnabled: widget.zoomEnabled,
+      panEnabled: widget.zoomEnabled,
+      maxScale: widget.maxScale,
+      onInteractionStart: (details) {
+        endHandled = null;
+        if (details.pointerCount == 0) {
+          endHandled = false;
+          _transformationController.value = identity;
+        } else {
+          _endScrollTimer?.cancel();
+        }
+      },
+      onInteractionUpdate: (details) {
+        if (details.pointerCount == 0) {
+          endHandled = false;
+          _transformationController.value = identity;
+        } else {
+          _endScrollTimer?.cancel();
+        }
+      },
+      onInteractionEnd: (details) {
+        if (details.pointerCount == 0) {
+          endHandled = false;
+          _transformationController.value = identity;
+        } else {
+          _endScrollTimer = Timer(Duration(milliseconds: 100), () {
+            endHandled = false;
+            _transformationController.value = identity;
+          });
+        }
+      },
+      transformationController: _transformationController,
     );
   }
 
   @override
   void initState() {
     super.initState();
-    _controllerReset = AnimationController(
-      duration: widget.resetDuration,
-      vsync: this,
+    _transformationController.addListener(
+      () {
+        bool isIdentity = _transformationController.value.isIdentity();
+        OverlayEntry? entry = _overlayEntry;
+
+        if (endHandled == true) {
+          _transformationController.value = identity;
+        } else if (endHandled == false) {
+          endHandled = true;
+          if (widget.onZoomEnd != null) {
+            widget.onZoomEnd!();
+          }
+          if (entry != null) {
+            entry.remove();
+            _overlayEntry = null;
+          }
+        } else if (!isIdentity && entry == null) {
+          RenderBox? box =
+              widgetKey.currentContext?.findRenderObject() as RenderBox?;
+          if (box == null) return;
+          Offset position = box.localToGlobal(Offset.zero);
+          entry = OverlayEntry(
+            builder: (context) => ValueListenableBuilder(
+              valueListenable: _transformationController,
+              builder: (BuildContext context, Matrix4 value, Widget? child) {
+                return Positioned(
+                  left: position.dx,
+                  top: position.dy,
+                  width: box.size.width,
+                  height: box.size.height,
+                  child: IgnorePointer(
+                    child: Transform(
+                      transform: value,
+                      child: widget.child,
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+          _overlayEntry = entry;
+          Overlay.of(context).insert(entry);
+          if (widget.onZoomStart != null) {
+            widget.onZoomStart!();
+          }
+        }
+      },
     );
-  }
-
-  @override
-  void dispose() {
-    _controllerReset.dispose();
-    super.dispose();
-  }
-
-  /// Go back to static state after resetting has ended
-  void _onAnimateReset() {
-    _transformationController.value = _animationReset.value;
-    if (!_controllerReset.isAnimating) {
-      _animationReset.removeListener(_onAnimateReset);
-      _animationReset = Matrix4Tween().animate(_controllerReset);
-      _controllerReset.reset();
-      if (widget.onZoomEnd != null) {
-        widget.onZoomEnd!();
-      }
-    }
-  }
-
-  /// Start resetting the animation
-  void _animateResetInitialize() {
-    _controllerReset.reset();
-    _animationReset = Matrix4Tween(
-      begin: _transformationController.value,
-      end: Matrix4.identity(),
-    ).animate(_controllerReset);
-    _animationReset.addListener(_onAnimateReset);
-    _controllerReset.forward();
-  }
-
-  /// Stop the reset animation
-  void _animateResetStop() {
-    _controllerReset.stop();
-    _animationReset.removeListener(_onAnimateReset);
-    _animationReset = Matrix4Tween().animate(_controllerReset);
-    _controllerReset.reset();
   }
 }
