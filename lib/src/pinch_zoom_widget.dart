@@ -25,8 +25,9 @@ class PinchZoom extends StatefulWidget {
   ///
   /// * [onZoomEnd] called when the widget is back to its idle state.
 
-  PinchZoom(
-      {required this.child,
+  const PinchZoom(
+      {super.key,
+      required this.child,
       // This default maxScale value is eyeballed as reasonable limit for common
       // use cases.
       this.maxScale = 3.0,
@@ -35,7 +36,7 @@ class PinchZoom extends StatefulWidget {
       this.onZoomEnd});
 
   @override
-  _PinchZoomState createState() => _PinchZoomState();
+  State<PinchZoom> createState() => _PinchZoomState();
 }
 
 class _PinchZoomState extends State<PinchZoom>
@@ -52,7 +53,6 @@ class _PinchZoomState extends State<PinchZoom>
   Widget build(BuildContext context) {
     return InteractiveViewer(
       key: widgetKey,
-      child: widget.child,
       scaleEnabled: widget.zoomEnabled,
       panEnabled: widget.zoomEnabled,
       maxScale: widget.maxScale,
@@ -78,13 +78,14 @@ class _PinchZoomState extends State<PinchZoom>
           endHandled = false;
           _transformationController.value = identity;
         } else {
-          _endScrollTimer = Timer(Duration(milliseconds: 100), () {
+          _endScrollTimer = Timer(const Duration(milliseconds: 100), () {
             endHandled = false;
             _transformationController.value = identity;
           });
         }
       },
       transformationController: _transformationController,
+      child: widget.child,
     );
   }
 
