@@ -141,4 +141,12 @@ class _PinchZoomState extends State<PinchZoom>
       },
     );
   }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    _overlayEntry?.dispose();
+    _endScrollTimer?.cancel();
+    super.dispose();
+  }
 }
