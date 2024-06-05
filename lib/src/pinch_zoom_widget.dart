@@ -8,7 +8,7 @@ class PinchZoom extends StatefulWidget {
   final bool zoomEnabled;
   final Function? onZoomStart, onZoomEnd;
 
-  /// Create an PinchZoom.
+  /// Create a PinchZoom.
   ///
   /// * [child] is the widget used for zooming.
   /// This parameter must not be null.
@@ -16,8 +16,6 @@ class PinchZoom extends StatefulWidget {
   /// * [maxScale] is the maximum allowed scale.
   /// Defaults to 3.0.
   /// Cannot be null, and must be greater than zero.
-  ///
-  /// * [resetDuration] is the length of time this animation should last.
   ///
   /// * [zoomEnabled] can be used to enable/disable zooming.
   ///
