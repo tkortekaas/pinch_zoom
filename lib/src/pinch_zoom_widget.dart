@@ -42,43 +42,43 @@ class _PinchZoomState extends State<PinchZoom>
   final TransformationController _transformationController =
       TransformationController();
   OverlayEntry? _overlayEntry;
-  final widgetKey = GlobalKey();
+  final _widgetKey = GlobalKey();
   Timer? _endScrollTimer;
-  bool? endHandled;
-  final Matrix4 identity = Matrix4.identity();
+  bool? _endHandled;
+  final Matrix4 _identity = Matrix4.identity();
 
   @override
   Widget build(BuildContext context) {
     return InteractiveViewer(
-      key: widgetKey,
+      key: _widgetKey,
       scaleEnabled: widget.zoomEnabled,
       panEnabled: widget.zoomEnabled,
       maxScale: widget.maxScale,
       onInteractionStart: (details) {
-        endHandled = null;
+        _endHandled = null;
         if (details.pointerCount == 0) {
-          endHandled = false;
-          _transformationController.value = identity;
+          _endHandled = false;
+          _transformationController.value = _identity;
         } else {
           _endScrollTimer?.cancel();
         }
       },
       onInteractionUpdate: (details) {
         if (details.pointerCount == 0) {
-          endHandled = false;
-          _transformationController.value = identity;
+          _endHandled = false;
+          _transformationController.value = _identity;
         } else {
           _endScrollTimer?.cancel();
         }
       },
       onInteractionEnd: (details) {
         if (details.pointerCount == 0) {
-          endHandled = false;
-          _transformationController.value = identity;
+          _endHandled = false;
+          _transformationController.value = _identity;
         } else {
           _endScrollTimer = Timer(const Duration(milliseconds: 100), () {
-            endHandled = false;
-            _transformationController.value = identity;
+            _endHandled = false;
+            _transformationController.value = _identity;
           });
         }
       },
@@ -95,10 +95,10 @@ class _PinchZoomState extends State<PinchZoom>
         bool isIdentity = _transformationController.value.isIdentity();
         OverlayEntry? entry = _overlayEntry;
 
-        if (endHandled == true) {
-          _transformationController.value = identity;
-        } else if (endHandled == false) {
-          endHandled = true;
+        if (_endHandled == true) {
+          _transformationController.value = _identity;
+        } else if (_endHandled == false) {
+          _endHandled = true;
           if (widget.onZoomEnd != null) {
             widget.onZoomEnd!();
           }
@@ -108,7 +108,7 @@ class _PinchZoomState extends State<PinchZoom>
           }
         } else if (!isIdentity && entry == null) {
           RenderBox? box =
-              widgetKey.currentContext?.findRenderObject() as RenderBox?;
+              _widgetKey.currentContext?.findRenderObject() as RenderBox?;
           if (box == null) return;
           Offset position = box.localToGlobal(Offset.zero);
           entry = OverlayEntry(
