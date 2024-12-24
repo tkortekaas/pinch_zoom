@@ -33,14 +33,22 @@ class ExamplePage extends StatelessWidget {
         children: [
           PinchZoom(
             maxScale: 2.5,
-            onZoomStart: (){print('Start zooming cat');},
-            onZoomEnd: (){print('Stop zooming cat');},
+            onZoomStart: () {
+              print('Start zooming cat');
+            },
+            onZoomEnd: () {
+              print('Stop zooming cat');
+            },
             child: Image.network('https://placekitten.com/640/360'),
           ),
           PinchZoom(
             maxScale: 2.5,
-            onZoomStart: (){print('Start zooming dog');},
-            onZoomEnd: (){print('Stop zooming dog');},
+            onZoomStart: () {
+              print('Start zooming dog');
+            },
+            onZoomEnd: () {
+              print('Stop zooming dog');
+            },
             child: Image.network('https://placedog.net/640/360'),
           ),
         ],
