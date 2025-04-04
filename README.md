@@ -14,7 +14,7 @@ The package is designed for zooming in on images; however, it can also be used t
 Add this to your `pubspec.yaml` dependencies:
 
 ```
-pinch_zoom: ^2.0.0
+pinch_zoom: ^2.0.1
 ```
 
 ## How to use
@@ -23,7 +23,7 @@ Add the widget to your app like this (It automatically takes the size of the ima
 
 ```dart
 PinchZoom(
-    child: Image.network('https://placekitten.com/640/360'),
+    child: Image.network('https://placecats.com/640/360'),
     maxScale: 2.5,
     onZoomStart: (){print('Start zooming');},
     onZoomEnd: (){print('Stop zooming');},

@@ -39,7 +39,7 @@ class ExamplePage extends StatelessWidget {
             onZoomEnd: () {
               print('Stop zooming cat');
             },
-            child: Image.network('https://placekitten.com/640/360'),
+            child: Image.network('https://placecats.com/640/360'),
           ),
           PinchZoom(
             maxScale: 2.5,
