@@ -8,7 +8,7 @@ class PinchZoom extends StatefulWidget {
   final bool zoomEnabled;
   final Function? onZoomStart, onZoomEnd;
 
-  /// Create an PinchZoom.
+  /// Create a PinchZoom.
   ///
   /// * [child] is the widget used for zooming.
   /// This parameter must not be null.
@@ -17,16 +17,15 @@ class PinchZoom extends StatefulWidget {
   /// Defaults to 3.0.
   /// Cannot be null, and must be greater than zero.
   ///
-  /// * [resetDuration] is the length of time this animation should last.
-  ///
   /// * [zoomEnabled] can be used to enable/disable zooming.
   ///
   /// * [onZoomStart] called when the widget goes to its zoomed state.
   ///
   /// * [onZoomEnd] called when the widget is back to its idle state.
 
-  PinchZoom(
-      {required this.child,
+  const PinchZoom(
+      {super.key,
+      required this.child,
       // This default maxScale value is eyeballed as reasonable limit for common
       // use cases.
       this.maxScale = 3.0,
@@ -35,7 +34,7 @@ class PinchZoom extends StatefulWidget {
       this.onZoomEnd});
 
   @override
-  _PinchZoomState createState() => _PinchZoomState();
+  State<PinchZoom> createState() => _PinchZoomState();
 }
 
 class _PinchZoomState extends State<PinchZoom>
@@ -43,48 +42,48 @@ class _PinchZoomState extends State<PinchZoom>
   final TransformationController _transformationController =
       TransformationController();
   OverlayEntry? _overlayEntry;
-  final widgetKey = GlobalKey();
+  final _widgetKey = GlobalKey();
   Timer? _endScrollTimer;
-  bool? endHandled;
-  final Matrix4 identity = Matrix4.identity();
+  bool? _endHandled;
+  final Matrix4 _identity = Matrix4.identity();
 
   @override
   Widget build(BuildContext context) {
     return InteractiveViewer(
-      key: widgetKey,
-      child: widget.child,
+      key: _widgetKey,
       scaleEnabled: widget.zoomEnabled,
       panEnabled: widget.zoomEnabled,
       maxScale: widget.maxScale,
       onInteractionStart: (details) {
-        endHandled = null;
+        _endHandled = null;
         if (details.pointerCount == 0) {
-          endHandled = false;
-          _transformationController.value = identity;
+          _endHandled = false;
+          _transformationController.value = _identity;
         } else {
           _endScrollTimer?.cancel();
         }
       },
       onInteractionUpdate: (details) {
         if (details.pointerCount == 0) {
-          endHandled = false;
-          _transformationController.value = identity;
+          _endHandled = false;
+          _transformationController.value = _identity;
         } else {
           _endScrollTimer?.cancel();
         }
       },
       onInteractionEnd: (details) {
         if (details.pointerCount == 0) {
-          endHandled = false;
-          _transformationController.value = identity;
+          _endHandled = false;
+          _transformationController.value = _identity;
         } else {
-          _endScrollTimer = Timer(Duration(milliseconds: 100), () {
-            endHandled = false;
-            _transformationController.value = identity;
+          _endScrollTimer = Timer(const Duration(milliseconds: 100), () {
+            _endHandled = false;
+            _transformationController.value = _identity;
           });
         }
       },
       transformationController: _transformationController,
+      child: widget.child,
     );
   }
 
@@ -96,10 +95,10 @@ class _PinchZoomState extends State<PinchZoom>
         bool isIdentity = _transformationController.value.isIdentity();
         OverlayEntry? entry = _overlayEntry;
 
-        if (endHandled == true) {
-          _transformationController.value = identity;
-        } else if (endHandled == false) {
-          endHandled = true;
+        if (_endHandled == true) {
+          _transformationController.value = _identity;
+        } else if (_endHandled == false) {
+          _endHandled = true;
           if (widget.onZoomEnd != null) {
             widget.onZoomEnd!();
           }
@@ -109,7 +108,7 @@ class _PinchZoomState extends State<PinchZoom>
           }
         } else if (!isIdentity && entry == null) {
           RenderBox? box =
-              widgetKey.currentContext?.findRenderObject() as RenderBox?;
+              _widgetKey.currentContext?.findRenderObject() as RenderBox?;
           if (box == null) return;
           Offset position = box.localToGlobal(Offset.zero);
           entry = OverlayEntry(
@@ -139,5 +138,13 @@ class _PinchZoomState extends State<PinchZoom>
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    _overlayEntry?.dispose();
+    _endScrollTimer?.cancel();
+    super.dispose();
   }
 }
