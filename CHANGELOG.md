@@ -1,4 +1,4 @@
-## [2.0.1] - 04-04-2025
+## [2.0.1] - 04/04/2025
 Thanks a lot to @zmuranaka for this amazing contribution!
 
 - Addresses lints
@@ -6,8 +6,8 @@ Thanks a lot to @zmuranaka for this amazing contribution!
 - Adds dispose method
 - Other improvements
 
-> > Note: This release has breaking changes.
 ## [2.0.0] - 08/10/2023
+> Note: This release has breaking changes.
 
 Pinch zoom is back with improvements! It is recommended to run the example project to see the changes.
 
